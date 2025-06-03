@@ -25,7 +25,6 @@ async function loadRoutes() {
         const module = await import(path.join(routesPath, file));
         const route = module.default;
         app.use('/api', route);
-        // console.log(`Route loaded from file: ${file}`);
       } catch (err) {
         console.error(`Unable to load route from file: ${file}:`, err);
       }

@@ -20,9 +20,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        if (!username) {
-            username = email.split('@')[0];
-        }
+        username ??= email.split('@')[0];
 
         const existingUser = await prisma.user.findFirst({
             where: {
@@ -142,5 +140,4 @@ export const logout = async (_req: Request, res: Response): Promise<void> => {
     });
 
     res.status(200).json({ message: 'Loggedout successful' });
-    return;
 }

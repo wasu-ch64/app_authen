@@ -17,6 +17,7 @@ export const authenticateOptional = (req: Request, _res: Response, next: NextFun
         req.user = decoded;
         next();
     } catch (error: any) {
+        console.error('JWT verification failed:', error.message);
         req.user = { userRole: 'guest' }
         return next();
     }

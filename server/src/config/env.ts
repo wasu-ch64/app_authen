@@ -9,7 +9,7 @@ function required(name: string): string {
 }
 
 export const env = {
-  PORT: process.env['PORT'] || 3000,
+  PORT: process.env['PORT'] ?? 3000,
   JWT_SECRET: process.env['JWT_SECRET'] || 'default-secret',
   NODE_ENV: process.env['NODE_ENV'],
   BCRYPT_SALT: Number(process.env['BCRYPT_SALT']) || 12,
