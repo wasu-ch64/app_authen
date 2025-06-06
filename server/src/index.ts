@@ -1,5 +1,6 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import morgan from 'morgan';
+import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -10,6 +11,8 @@ import { readdirSync } from 'fs';
 
 const app: Express = express();
 
+app.disable('x-powered-by');
+app.use(helmet());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

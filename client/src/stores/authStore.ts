@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             });
 
             const user: User = response.data.user;
-            const message: string = response.data.message || "Registration successful";
+            const message: string = response.data.message ?? "Registration successful";
             set({
                 user,
                 isAuthenticated: false,
@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             });
         
         const user: User = response.data.user;
-        const message: string = response.data.message || "Login successful";
+        const message: string = response.data.message ?? "Login successful";
         set({
             user,
             isAuthenticated: true,
@@ -137,7 +137,7 @@ export const useAuthStore = create<AuthState>((set) => ({
                 error: null,
             });
 
-            const message: string = response.data.message || "Login successful";
+            const message: string = response.data.message ?? "Login successful";
 
             return { success: true, message };
         } catch (error: unknown) {

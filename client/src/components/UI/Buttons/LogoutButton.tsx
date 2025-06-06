@@ -3,11 +3,12 @@ import { useAuthStore } from "../../../stores/authStore";
 import { toast } from "react-toastify";
 
 interface LogoutButtonProps {
-    className?: string;
-    children?: React.ReactNode;
+    readonly className?: string;
+    readonly children?: React.ReactNode;
 }
 
-export default function LogoutButton({ className = '', children }: LogoutButtonProps) {
+
+export default function LogoutButton({ className, children }: LogoutButtonProps) {
     const { logout, isLoading } = useAuthStore();
     const navigate = useNavigate();
 
@@ -17,7 +18,7 @@ export default function LogoutButton({ className = '', children }: LogoutButtonP
             toast.success(message);
             navigate('/login');
         } else {
-            toast.error(error || "Logout failed");
+            toast.error(error ?? "Logout failed");
         }
     };
 
@@ -27,7 +28,7 @@ export default function LogoutButton({ className = '', children }: LogoutButtonP
             disabled={isLoading}
             className={`${className} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-            {isLoading ? 'Logging out...' : children || 'Logout'}
+            {isLoading ? 'Logging out...' : children ?? 'Logout'}
         </button>
     );
 }

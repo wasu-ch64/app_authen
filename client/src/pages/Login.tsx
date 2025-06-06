@@ -30,7 +30,7 @@ const Login = () => {
       toast.success(message);
       navigate("/pages/home")
     } else {
-      toast.error(error || "Login failed");
+      toast.error(error ?? "Login failed");
     }
   };
 

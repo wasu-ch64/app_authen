@@ -45,7 +45,7 @@ export const useUserStore = create<userState>((set, get) => ({
 
             await get().getUser();
 
-            const message: string = response.data.message || "Registration successful";
+            const message: string = response.data.message ?? "Registration successful";
             set({ isLoading: false });
 
             return { success: true, message }
@@ -66,7 +66,7 @@ export const useUserStore = create<userState>((set, get) => ({
 
         try {
             const response = await axiosInstance.put(`/users/${id}`, data);
-            const message = response.data.message || 'Update successful';
+            const message = response.data.message ?? 'Update successful';
             await get().getUser();
 
             set({ isLoading: false, error: null });

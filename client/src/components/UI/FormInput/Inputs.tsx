@@ -15,7 +15,13 @@ type FormInputsProps = {
 const Inputs = ({ id, label, type = "text", placeholder, required, error, register }: FormInputsProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === 'password';
-  const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
+  let inputType: string;
+
+  if (isPassword) {
+      inputType = showPassword ? 'text' : 'password';
+  } else {
+      inputType = type;
+  }
 
   return (
     <section>

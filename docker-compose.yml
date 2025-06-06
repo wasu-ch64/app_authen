@@ -102,6 +102,16 @@ services:
         limits:
           memory: 2g
 
+  owasp-dependency-check:
+    image: owasp/dependency-check:latest
+    platform: linux/amd64
+    volumes:
+      - ./server:/src
+      - ./reports:/reports
+    command: --scan /src --format HTML --out /reports --project "app_authen"
+    networks:
+      - app-network
+
 volumes:
   postgres_data:
   pgadmin_data:

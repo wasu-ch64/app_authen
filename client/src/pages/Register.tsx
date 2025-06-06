@@ -33,7 +33,7 @@ const RegisterPage = () => {
       toast.success(message);
       navigate("/login");
     } else {
-      toast.error(error || "Registration failed");
+      toast.error(error ?? "Registration failed");
     }
   };
 

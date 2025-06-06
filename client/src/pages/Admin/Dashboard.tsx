@@ -30,7 +30,7 @@ const Dashboard = () => {
     const role = (user.role ?? '').toLowerCase();
     const term = searchTerm.toLowerCase();
 
-    return (fullName.includes(term) || email.includes(term) || role.includes(term));
+    return (fullName.includes(term) ?? email.includes(term) ?? role.includes(term));
   });
 
   const handleDelete = async (id: string) => {
@@ -38,10 +38,10 @@ const Dashboard = () => {
       const result = await deleteUser(id);
 
       if (result.success) {
-        toast.success(result.message || 'Delete successful');
+        toast.success(result.message ?? 'Delete successful');
         await getUser(); // รีเฟรชข้อมูลหลังลบสำเร็จ
       } else {
-        toast.error(result.error || 'Delete failed');
+        toast.error(result.error ?? 'Delete failed');
       }
     }
   };
@@ -66,11 +66,11 @@ const Dashboard = () => {
 
     const result = await updateUser(editingUser.id, updatedData);
     if (result.success) {
-      toast.success(result.message || 'Update successful');
+      toast.success(result.message ?? 'Update successful');
       await getUser();
       closeModal();
     } else {
-       setServerError(result.error || 'Failed to update user');
+       setServerError(result.error ?? 'Failed to update user');
     }
   };
   const handleEditClick = (user: User) => {
@@ -131,16 +131,16 @@ const Dashboard = () => {
                 >
                   <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{user.id}</th>
                   <td className="px-6 py-2">
-                    {fullName || 'No name'}
+                    {fullName ?? 'No name'}
                   </td>
                   <td className="px-6 py-2">
-                    {user.email || 'No email'}
+                    {user.email ?? 'No email'}
                   </td>
                   <td className={`px-6 py-2 ${user.role === 'admin' ? 'text-green-500' : 'text-blue-500'}`}>
-                    {user.role || 'User'}
+                    {user.role ?? 'User'}
                   </td>
                   <td className="px-6 py-2">
-                    {date || 'No username'}
+                    {date ?? 'No username'}
                   </td>
                   <td className="px-6 py-2 flex gap-2">
                     <button
