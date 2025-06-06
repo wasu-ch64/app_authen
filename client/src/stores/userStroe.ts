@@ -3,7 +3,7 @@ import { axiosInstance } from "../utils/axios";
 import axios from "axios";
 import type { User } from '../types/User';
 
-interface userState {
+interface UserState {
     users: User[];
     isLoading: boolean,
     error: string | null;
@@ -12,7 +12,7 @@ interface userState {
     deleteUser: (id: string) => Promise<{ success: boolean; message?: string; error?: string; }>;
 }
 
-export const useUserStore = create<userState>((set, get) => ({
+export const useUserStore = create<UserState>((set, get) => ({
     users: [],
     isLoading: false,
     error: null,
