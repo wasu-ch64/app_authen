@@ -46,6 +46,14 @@ pipeline {
       }
     }
 
+    stage('Test Server') {
+      steps {
+        dir('server') {
+          sh 'npm install'
+          sh 'npm run test'
+      }
+    }
+
     stage('Push Docker Images') {
       steps {
         sh "docker push ${IMAGE_CLIENT}"
