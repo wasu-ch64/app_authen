@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_REGISTRY = "mydockerhub"          // เปลี่ยนเป็น registry ของคุณ
+    DOCKER_REGISTRY = "wasu1304"       
     IMAGE_CLIENT = "${DOCKER_REGISTRY}/app_authen_client:latest"
     IMAGE_SERVER = "${DOCKER_REGISTRY}/app_authen_server:latest"
   }
