@@ -33,7 +33,7 @@ pipeline {
     stage('Build Client Docker Image') {
       steps {
         dir('client') {
-          sh "docker build -t ${IMAGE_CLIENT} ."
+          sh "docker build -f Dockerfile.client -t ${IMAGE_CLIENT} ."
         }
       }
     }
@@ -41,7 +41,7 @@ pipeline {
     stage('Build Server Docker Image') {
       steps {
         dir('server') {
-          sh "docker build -t ${IMAGE_SERVER} ."
+          sh "docker buildm -f Dockerfile.server -t ${IMAGE_SERVER} ."
         }
       }
     }
