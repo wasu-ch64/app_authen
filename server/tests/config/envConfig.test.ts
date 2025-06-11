@@ -9,7 +9,7 @@ describe('Environment Configuration', () => {
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...process.env } as NodeJS.ProcessEnv;
-    delete process.env.NODE_ENV;
+    delete (process.env as any).NODE_ENV;
   });
 
   describe('required function', () => {
