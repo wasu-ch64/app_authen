@@ -2,13 +2,13 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_REGISTRY = "wasu1304"       
+    DOCKER_REGISTRY = "wasu1304"
     IMAGE_CLIENT = "${DOCKER_REGISTRY}/app_authen_client:latest"
     IMAGE_SERVER = "${DOCKER_REGISTRY}/app_authen_server:latest"
   }
 
   tools {
-    sonarQubeScanner 'sonar-scan'            // ชื่อที่ตั้งใน Global Tool Configuration
+    sonarQubeScanner 'sonar-scan'
   }
 
   stages {
@@ -20,8 +20,16 @@ pipeline {
 
     stage('SonarQube Analysis') {
       steps {
-        withSonarQubeEnv('SonarQubeServer') { // ชื่อ SonarQube Server ใน Jenkins
+        withSonarQubeEnv('SonarQubeServer') {
           sh 'sonar-scanner'
+        }
+      }
+    }
+
+    stage('Docker Login') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-credential-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
         }
       }
     }
