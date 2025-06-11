@@ -2,8 +2,13 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_IMAGE_CLIENT = "myrepo/app_authen_client:latest"
-    DOCKER_IMAGE_SERVER = "myrepo/app_authen_server:latest"
+    DOCKER_REGISTRY = "mydockerhub"          // เปลี่ยนเป็น registry ของคุณ
+    IMAGE_CLIENT = "${DOCKER_REGISTRY}/app_authen_client:latest"
+    IMAGE_SERVER = "${DOCKER_REGISTRY}/app_authen_server:latest"
+  }
+
+  tools {
+    sonarQubeScanner 'sonar-scan'            // ชื่อที่ตั้งใน Global Tool Configuration
   }
 
   stages {
@@ -12,31 +17,35 @@ pipeline {
         checkout scm
       }
     }
-    stage('Build Client Docker Image') {
+
+    stage('SonarQube Analysis') {
       steps {
-        dir('client') {
-          sh 'docker build -t $DOCKER_IMAGE_CLIENT .'
-        }
-      }
-    }
-    stage('Build Server Docker Image') {
-      steps {
-        dir('server') {
-          sh 'docker build -t $DOCKER_IMAGE_SERVER .'
-        }
-      }
-    }
-    stage('Run SonarQube Scan') {
-      steps {
-        withSonarQubeEnv('sonar-scan') {
+        withSonarQubeEnv('SonarQubeServer') { // ชื่อ SonarQube Server ใน Jenkins
           sh 'sonar-scanner'
         }
       }
     }
+
+    stage('Build Client Docker Image') {
+      steps {
+        dir('client') {
+          sh "docker build -t ${IMAGE_CLIENT} ."
+        }
+      }
+    }
+
+    stage('Build Server Docker Image') {
+      steps {
+        dir('server') {
+          sh "docker build -t ${IMAGE_SERVER} ."
+        }
+      }
+    }
+
     stage('Push Docker Images') {
       steps {
-        sh 'docker push $DOCKER_IMAGE_CLIENT'
-        sh 'docker push $DOCKER_IMAGE_SERVER'
+        sh "docker push ${IMAGE_CLIENT}"
+        sh "docker push ${IMAGE_SERVER}"
       }
     }
   }
