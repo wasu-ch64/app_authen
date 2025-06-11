@@ -8,7 +8,7 @@ const config: Config = {
   clearMocks: true,
   verbose: true,
   transform: {
-    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.json' }],
+    '^.+\\.ts$': ['ts-jest', { tsconfig: 'tsconfig.jest.json' }],
   },
 };
 
