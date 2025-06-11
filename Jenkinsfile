@@ -28,7 +28,7 @@ pipeline {
     }
     stage('Run SonarQube Scan') {
       steps {
-        withSonarQubeEnv('SonarQubeServer') {
+        withSonarQubeEnv('sonar-scan') {
           sh 'sonar-scanner'
         }
       }
