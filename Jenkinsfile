@@ -35,6 +35,7 @@ pipeline {
         dir('server') {
           sh 'npm install'
           sh 'npm run test'
+        }
       }
     }
 
