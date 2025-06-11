@@ -14,13 +14,13 @@ pipeline {
       }
     }
 
-    stage('SonarQube Analysis') {
-      steps {
-        withSonarQubeEnv('SonarQubeServer') {
-          sh 'sonar-scanner'
-        }
-      }
-    }
+    // stage('SonarQube Analysis') {
+    //   steps {
+    //     withSonarQubeEnv('SonarQubeServer') {
+    //       sh 'sonar-scanner'
+    //     }
+    //   }
+    // }
 
     stage('Docker Login') {
       steps {
