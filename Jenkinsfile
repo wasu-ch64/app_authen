@@ -1,9 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'node:20'
-    }
-  }
+  agent any
 
   environment {
     DOCKER_REGISTRY = "wasu1304"
@@ -18,23 +14,12 @@ pipeline {
       }
     }
 
-    // stage('SonarQube Analysis') {
-    //   steps {
-    //     withSonarQubeEnv('SonarQubeServer') {
-    //       sh 'sonar-scanner'
-    //     }
-    //   }
-    // }
-
-    stage('Docker Login') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-credential-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+    stage('Test Server') {
+      agent {
+        docker {
+          image 'node:18'
         }
       }
-    }
-
-    stage('Test Server') {
       steps {
         dir('server') {
           sh 'npm install'
@@ -43,7 +28,17 @@ pipeline {
       }
     }
 
+    stage('Docker Login') {
+      agent { label 'docker-agent' }
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'docker-hub-credential-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+        }
+      }
+    }
+
     stage('Build Client Docker Image') {
+      agent { label 'docker-agent' }
       steps {
         dir('client') {
           sh "docker build -f Dockerfile.client -t ${IMAGE_CLIENT} ."
@@ -52,6 +47,7 @@ pipeline {
     }
 
     stage('Build Server Docker Image') {
+      agent { label 'docker-agent' }
       steps {
         dir('server') {
           sh "docker build -f Dockerfile.server -t ${IMAGE_SERVER} ."
@@ -60,6 +56,7 @@ pipeline {
     }
 
     stage('Push Docker Images') {
+      agent { label 'docker-agent' }
       steps {
         sh "docker push ${IMAGE_CLIENT}"
         sh "docker push ${IMAGE_SERVER}"
