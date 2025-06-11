@@ -29,7 +29,7 @@ pipeline {
     }
 
     stage('Docker Login') {
-      agent { label 'docker-agent' }
+      agent any
       steps {
         withCredentials([usernamePassword(credentialsId: 'docker-hub-credential-id', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
           sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
@@ -38,7 +38,7 @@ pipeline {
     }
 
     stage('Build Client Docker Image') {
-      agent { label 'docker-agent' }
+      agent any
       steps {
         dir('client') {
           sh "docker build -f Dockerfile.client -t ${IMAGE_CLIENT} ."
@@ -47,7 +47,7 @@ pipeline {
     }
 
     stage('Build Server Docker Image') {
-      agent { label 'docker-agent' }
+      agent any
       steps {
         dir('server') {
           sh "docker build -f Dockerfile.server -t ${IMAGE_SERVER} ."
@@ -56,7 +56,7 @@ pipeline {
     }
 
     stage('Push Docker Images') {
-      agent { label 'docker-agent' }
+      agent any
       steps {
         sh "docker push ${IMAGE_CLIENT}"
         sh "docker push ${IMAGE_SERVER}"
