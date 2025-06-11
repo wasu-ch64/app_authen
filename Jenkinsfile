@@ -30,6 +30,14 @@ pipeline {
       }
     }
 
+    stage('Test Server') {
+      steps {
+        dir('server') {
+          sh 'npm install'
+          sh 'npm run test'
+      }
+    }
+
     stage('Build Client Docker Image') {
       steps {
         dir('client') {
@@ -43,14 +51,6 @@ pipeline {
         dir('server') {
           sh "docker build -f Dockerfile.server -t ${IMAGE_SERVER} ."
         }
-      }
-    }
-
-    stage('Test Server') {
-      steps {
-        dir('server') {
-          sh 'npm install'
-          sh 'npm run test'
       }
     }
 
