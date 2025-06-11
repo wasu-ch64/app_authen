@@ -7,10 +7,6 @@ pipeline {
     IMAGE_SERVER = "${DOCKER_REGISTRY}/app_authen_server:latest"
   }
 
-  tools {
-    sonarRunner 'sonar-scan'
-  }
-
   stages {
     stage('Checkout') {
       steps {
