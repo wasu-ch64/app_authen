@@ -41,7 +41,7 @@ pipeline {
     stage('Build Server Docker Image') {
       steps {
         dir('server') {
-          sh "docker buildm -f Dockerfile.server -t ${IMAGE_SERVER} ."
+          sh "docker build -f Dockerfile.server -t ${IMAGE_SERVER} ."
         }
       }
     }
