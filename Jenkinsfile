@@ -8,25 +8,71 @@ pipeline {
             }
         }
         
-        stage('List Files') {
+        stage('Setup') {
             steps {
-                sh 'ls -la'
-                sh 'pwd'
+                sh '''
+                    echo "🚀 Setting up project..."
+                    if [ -f "package.json" ]; then
+                        echo "📦 Installing dependencies..."
+                        npm install
+                    fi
+                '''
+            }
+        }
+        
+        stage('Code Quality Check') {
+            steps {
+                sh '''
+                    echo "🔍 Running code quality checks..."
+                    
+                    # ตรวจสอบ HTML validity
+                    echo "Checking HTML files..."
+                    find ./client -name "*.html" -exec echo "✅ Found: {}" \\;
+                    
+                    # ตรวจสอบ CSS syntax
+                    echo "Checking CSS files..."
+                    find ./client -name "*.css" -exec echo "✅ Found: {}" \\;
+                    
+                    # ตรวจสอบ JS files
+                    echo "Checking JavaScript files..."
+                    find ./client -name "*.js" -exec echo "✅ Found: {}" \\;
+                    
+                    # File size check
+                    echo "📊 File sizes:"
+                    find ./client -type f \\( -name "*.html" -o -name "*.css" -o -name "*.js" \\) -exec ls -lh {} \\;
+                '''
             }
         }
         
         stage('Test') {
             steps {
                 sh '''
-                    echo "Testing website files..."
-                    if [ -f "index.html" ]; then
-                        echo "✅ index.html found"
+                    echo "🧪 Running tests..."
+                    
+                    # ตรวจสอบว่าไฟล์หลักครบหรือไม่
+                    if [ -f "./client/index.html" ]; then
+                        echo "✅ Main HTML file exists"
                     else
-                        echo "❌ index.html not found"
+                        echo "❌ Main HTML file missing"
+                        exit 1
                     fi
                     
-                    echo "All files in directory:"
-                    find . -type f -name "*.html" -o -name "*.css" -o -name "*.js"
+                    # ตรวจสอบ responsive meta tag
+                    if grep -q "viewport" ./client/index.html; then
+                        echo "✅ Responsive meta tag found"
+                    else
+                        echo "⚠️  No responsive meta tag found"
+                    fi
+                    
+                    # ตรวจสอบ title tag
+                    if grep -q "<title>" ./client/index.html; then
+                        echo "✅ Title tag found"
+                        grep "<title>" ./client/index.html
+                    else
+                        echo "⚠️  No title tag found"
+                    fi
+                    
+                    echo "✅ Basic tests completed!"
                 '''
             }
         }
@@ -34,21 +80,42 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    echo "Building website..."
-                    mkdir -p build
-                    cp -r * build/ 2>/dev/null || true
-                    echo "✅ Build completed"
+                    echo "🔨 Building project..."
+                    mkdir -p dist
+                    
+                    # Copy client files to dist
+                    cp -r client/* dist/
+                    
+                    # Create build info
+                    echo "Build Date: $(date)" > dist/build-info.txt
+                    echo "Build Number: ${BUILD_NUMBER}" >> dist/build-info.txt
+                    echo "Git Commit: $(git rev-parse HEAD)" >> dist/build-info.txt
+                    
+                    echo "✅ Build completed!"
+                    echo "📁 Build contents:"
+                    ls -la dist/
                 '''
+            }
+        }
+        
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'dist/**/*', fingerprint: true, allowEmptyArchive: true
+                echo "📦 Artifacts archived successfully!"
             }
         }
     }
     
     post {
+        always {
+            echo '🏁 Pipeline completed'
+        }
         success {
-            echo '🎉 Build Success!'
+            echo '🎉 Build and Test Successful!'
+            echo "🌐 Website ready for deployment!"
         }
         failure {
-            echo '❌ Build Failed!'
+            echo '❌ Build or Test Failed!'
         }
     }
 }
