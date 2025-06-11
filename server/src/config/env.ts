@@ -7,11 +7,15 @@ function required(name: string): string {
   if (!value) throw new Error(`Missing required environment variable: ${name}`);
   return value;
 }
+export { required };
 
 export const env = {
-  PORT: process.env['PORT'] ?? 3000,
-  JWT_SECRET: process.env['JWT_SECRET'] ?? 'default-secret',
-  NODE_ENV: process.env['NODE_ENV'],
-  BCRYPT_SALT: Number(process.env['BCRYPT_SALT']) || 12,
-  CORS_ORIGIN: process.env['CORS_ORIGIN'] ? process.env['CORS_ORIGIN'].split(',') : ['http://localhost:5173'],
+  PORT: process.env.PORT ? Number(process.env.PORT) : 3000,
+  JWT_SECRET: process.env.JWT_SECRET || 'default-secret',
+  NODE_ENV: process.env.NODE_ENV,
+  BCRYPT_SALT: process.env.BCRYPT_SALT ? Number(process.env.BCRYPT_SALT) : 12,
+  CORS_ORIGIN: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((item) => item.trim())
+    : ['http://localhost:5173'],
+  // ... อื่น ๆ
 };
