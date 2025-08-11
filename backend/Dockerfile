@@ -7,10 +7,11 @@ COPY package.json package-lock.json ./
 
 # ติดตั้ง dependencies ทั้งหมดรวม devDependencies
 RUN npm ci
-# คัดลอก source code
+
+# คัดลอก source code และไฟล์ config
 COPY . .
-COPY prisma ./prisma
-COPY tsconfig*.json ./ 
+# COPY prisma ./prisma  <-- ลบบรรทัดนี้ออก (เพราะ COPY . . ครอบคลุมแล้ว)
+# COPY tsconfig*.json ./  <-- ลบบรรทัดนี้ออก (เพราะ COPY . . ครอบคลุมแล้ว)
 
 # สร้าง Prisma Client
 RUN npx prisma generate
