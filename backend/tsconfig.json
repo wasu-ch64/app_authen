@@ -34,7 +34,9 @@
   },
   "include": [
     "src",
+    "src/**/*",
     "src/types",
     "tests/**/*"
-  ]
+  ],
+  "exclude": ["node_modules", "dist"]
 }
