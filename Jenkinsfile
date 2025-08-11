@@ -22,9 +22,9 @@ pipeline {
             steps {
                 dir('backend') {
                     sh """
-                    docker build -t $DOCKERHUB_USER/server:$IMAGE_TAG .
+                    docker build -t $DOCKERHUB_USER/backend:$IMAGE_TAG .
                     echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_USER --password-stdin
-                    docker push $DOCKERHUB_USER/server:$IMAGE_TAG
+                    docker push $DOCKERHUB_USER/backend:$IMAGE_TAG
                     """
                 }
             }
@@ -34,9 +34,9 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh """
-                    docker build -t $DOCKERHUB_USER/client:$IMAGE_TAG .
+                    docker build -t $DOCKERHUB_USER/frontend:$IMAGE_TAG .
                     echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_USER --password-stdin
-                    docker push $DOCKERHUB_USER/client:$IMAGE_TAG
+                    docker push $DOCKERHUB_USER/frontend:$IMAGE_TAG
                     """
                 }
             }
@@ -50,8 +50,8 @@ pipeline {
                         url: MANIFEST_REPO
 
                     sh """
-                    sed -i 's|image: ${DOCKERHUB_USER}/server:.*|image: ${DOCKERHUB_USER}/server:${IMAGE_TAG}|' k8s/backend.yaml
-                    sed -i 's|image: ${DOCKERHUB_USER}/client:.*|image: ${DOCKERHUB_USER}/client:${IMAGE_TAG}|' k8s/frontend.yaml
+                    sed -i 's|image: ${DOCKERHUB_USER}/backend:.*|image: ${DOCKERHUB_USER}/backend:${IMAGE_TAG}|' k8s/backend.yaml
+                    sed -i 's|image: ${DOCKERHUB_USER}/frontend:.*|image: ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}|' k8s/frontend.yaml
                     git config user.email "jenkins@ci"
                     git config user.name "Jenkins CI"
                     git commit -am "chore: update images to tag ${IMAGE_TAG}"
