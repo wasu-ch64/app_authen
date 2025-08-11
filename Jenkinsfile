@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')  // Docker Hub username/password
         DOCKERHUB_USER = 'wasu1304'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         MANIFEST_REPO = 'https://github.com/wasu-ch64/app_authen.git'
-        MANIFEST_CREDENTIALS = 'github-token'
+        MANIFEST_CREDENTIALS = 'github-token' // Jenkins Credential (Username + PAT)
     }
 
     stages {
@@ -44,14 +44,19 @@ pipeline {
 
         stage('Update Manifests for ArgoCD') {
             steps {
-                script {
+                withCredentials([usernamePassword(credentialsId: MANIFEST_CREDENTIALS, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                     sh """
                     sed -i'' -e 's|image: ${DOCKERHUB_USER}/backend:.*|image: ${DOCKERHUB_USER}/backend:${IMAGE_TAG}|' k8s/backend.yaml
                     sed -i'' -e 's|image: ${DOCKERHUB_USER}/frontend:.*|image: ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}|' k8s/frontend.yaml
+
                     git config user.email "jenkins@ci"
                     git config user.name "Jenkins CI"
+
+                    # ตั้ง remote url ใหม่ใส่ username กับ token สำหรับ push ผ่าน HTTPS
+                    git remote set-url origin https://${GIT_USER}:${GIT_PASS}@github.com/wasu-ch64/app_authen.git
+
                     git add k8s/backend.yaml k8s/frontend.yaml
-                    git commit -m "chore: update images to tag ${IMAGE_TAG}"
+                    git commit -m "chore: update images to tag ${IMAGE_TAG}" || echo "No changes to commit"
                     git push origin main
                     """
                 }
