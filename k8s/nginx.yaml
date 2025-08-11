@@ -14,12 +14,12 @@ data:
       
       # เพิ่ม upstream blocks สำหรับ dynamic DNS resolution
       upstream frontend {
-        server myapp.myapp-ns.svc.cluster.local:5173;
+        server myapp.default.svc.cluster.local:5173;
         keepalive 32;
       }
       
       upstream backend {
-        server myapp.myapp-ns.svc.cluster.local:5000;
+        server myapp.default.svc.cluster.local:5000;
         keepalive 32;
       }
 
@@ -29,7 +29,7 @@ data:
         # Frontend (React/Vue/etc.)
         location / {
           # ใช้ตัวแปรเพื่อ dynamic DNS resolution
-          set $frontend_upstream "myapp.myapp-ns.svc.cluster.local:5173";
+          set $frontend_upstream "myapp.default.svc.cluster.local:5173";
           proxy_pass http://$frontend_upstream;
           
           proxy_set_header Host $host;
@@ -49,7 +49,7 @@ data:
 
         # Backend API
         location /api {
-          set $backend_upstream "myapp.myapp-ns.svc.cluster.local:5000";
+          set $backend_upstream "myapp.default.svc.cluster.local:5000";
           proxy_pass http://$backend_upstream;
           
           proxy_set_header Host $host;
