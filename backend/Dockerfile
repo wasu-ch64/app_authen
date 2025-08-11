@@ -19,6 +19,9 @@ COPY prisma/ ./prisma/
 # สร้าง Prisma Client
 RUN npx prisma generate
 
+# Build TypeScript ให้เป็น JavaScript ในโฟลเดอร์ dist
+RUN npm run build
+
 # เปิดพอร์ต (สมมุติ API ใช้พอร์ต 5000)
 EXPOSE 5000
 
