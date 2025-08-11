@@ -7,6 +7,8 @@ data:
     events {}
 
     http {
+      resolver kube-dns.kube-system.svc.cluster.local valid=10s;
+      
       upstream client {
           server client:5173;
       }
