@@ -1,41 +1,24 @@
-# FROM node:22-alpine
-
-# WORKDIR /app
-
-# # คัดลอกไฟล์ package ก่อนเพื่อลดเวลาการ rebuild เมื่อโค้ดเปลี่ยน
-# COPY package.json package-lock.json ./
-
-# # ติดตั้ง dependencies แบบแม่นยำ
-# RUN npm ci
-
-# # คัดลอกโค้ดแอปทั้งหมด
-# COPY src ./src
-# COPY public ./public
-
-# EXPOSE 5173
-
-# # รันเป็น user ปลอดภัย
-# USER root
-
-# # รันแอปในโหมด development
-# CMD ["npm", "start"]
-
-# Stage 1: Build
+# Build stage
 FROM node:22-alpine AS build
 
 WORKDIR /app
 
+# Copy package files
 COPY package.json package-lock.json ./
+
+# Install dependencies
 RUN npm ci
 
-COPY src ./src
-COPY public ./public
+# Copy everything
+COPY . .
 
+# Build the app
 RUN npm run build
 
-# Stage 2: Serve with nginx
+# Production stage
 FROM nginx:stable-alpine
 
+# Copy built files to nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
