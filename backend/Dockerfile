@@ -6,8 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # ติดตั้ง dependencies ทั้งหมดรวม devDependencies
-RUN npm install
-
+RUN npm ci
 # คัดลอก source code
 COPY src ./src
 COPY prisma ./prisma

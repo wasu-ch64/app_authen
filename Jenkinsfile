@@ -21,10 +21,14 @@ pipeline {
         stage('Build & Push Backend Image') {
             steps {
                 dir('backend') {
+                    sh '''
+                        npm install
+                        npm run build || true
+                    '''
                     sh """
-                    docker build -t $DOCKERHUB_USER/backend:$IMAGE_TAG .
-                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_USER --password-stdin
-                    docker push $DOCKERHUB_USER/backend:$IMAGE_TAG
+                        docker build -t $DOCKERHUB_USER/backend:$IMAGE_TAG .
+                        echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_USER --password-stdin
+                        docker push $DOCKERHUB_USER/backend:$IMAGE_TAG
                     """
                 }
             }
