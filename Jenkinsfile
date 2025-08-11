@@ -6,14 +6,14 @@ pipeline {
         DOCKERHUB_USER = 'wasu1304'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         MANIFEST_REPO = 'git@github.com:wasu-ch64/app_authen-deploy.git'
-        MANIFEST_CREDENTIALS = 'git-token'
+        MANIFEST_CREDENTIALS = 'github-token'
     }
 
     stages {
         stage('Checkout Source') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'git-token',
+                    credentialsId: 'github-token',
                     url: 'https://github.com/wasu-ch64/app_authen.git'
             }
         }
