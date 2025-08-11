@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: wasu1304/frontend:25
+        image: wasu1304/frontend:26
         resources:
           limits:
             memory: "128Mi"
