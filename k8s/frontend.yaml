@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: myapp
-  namespace: myapp
+  namespace: myapp     # ต้องมี namespace นี้สร้างไว้ก่อน
   labels:
     app: frontend
     component: web
@@ -10,7 +10,7 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: frontend
+      app: frontend   # ต้องตรงกับ template.metadata.labels.app
   template:
     metadata:
       labels:
@@ -37,10 +37,10 @@ metadata:
     app: frontend
 spec:
   selector:
-    app: frontend
+    app: frontend      # ต้องตรงกับ Deployment template.metadata.labels.app
   ports:
     - name: http
-      port: 80
-      targetPort: 5173
+      port: 80          # พอร์ตที่ expose ใน cluster
+      targetPort: 5173  # พอร์ตที่ container ฟัง
       protocol: TCP
   type: ClusterIP
