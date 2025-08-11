@@ -8,14 +8,14 @@ data:
     events {}
 
     http {
-      resolver 127.0.0.11 valid=10s;
+      resolver kube-dns.kube-system.svc.cluster.local valid=10s;
 
       upstream client {
-          server myapp:5173;
+          server myapp.myapp-ns.svc.cluster.local:5173;
       }
       
       upstream server {
-          server myapp:5000;
+          server myapp.myapp-ns.svc.cluster.local:5000;
       }
       
       server {
