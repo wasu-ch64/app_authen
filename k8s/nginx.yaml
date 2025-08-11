@@ -4,10 +4,11 @@ metadata:
   name: nginx-config
 data:
   nginx.conf: |
+    # เนื้อหาไฟล์ nginx.conf ที่คุณมี
     events {}
 
     http {
-      resolver kube-dns.kube-system.svc.cluster.local valid=10s;
+      resolver 127.0.0.11 valid=10s;
 
       upstream client {
           server myapp:5173;
