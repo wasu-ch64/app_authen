@@ -9,8 +9,7 @@ spec:
   selector:
     app: frontend      # ต้องตรงกับ Deployment template.metadata.labels.app
   ports:
-    - name: http
+    - protocol: TCP
       port: 80          # พอร์ตที่ expose ใน cluster
       targetPort: 5173  # พอร์ตที่ container ฟัง
-      protocol: TCP
   type: ClusterIP
