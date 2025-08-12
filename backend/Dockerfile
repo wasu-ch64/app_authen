@@ -16,6 +16,8 @@ RUN npx prisma generate
 # สร้างไฟล์ JavaScript จาก TypeScript
 RUN npm run build
 
+RUN cp -r src/generated dist/generated
+
 EXPOSE 5000
 
 # รัน container ด้วย user ที่ปลอดภัย
