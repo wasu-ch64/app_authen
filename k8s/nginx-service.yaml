@@ -7,6 +7,7 @@ spec:
   selector:
     app: nginx
   ports:
-  - port: 80
-    targetPort: 80
-  type: NodePort   # เปลี่ยนเป็น LoadBalancer ได้ถ้าอยู่บน Cloud
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
