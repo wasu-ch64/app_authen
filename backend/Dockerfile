@@ -2,25 +2,23 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# คัดลอก package.json + package-lock.json
+# คัดลอกเฉพาะไฟล์ที่จำเป็นสำหรับการติดตั้ง dependencies ก่อน (เพื่อใช้ cache ได้ดี)
 COPY package.json package-lock.json ./
 
-# ติดตั้ง dependencies ทั้งหมดรวม devDependencies
 RUN npm ci
 
-# คัดลอก source code และไฟล์ config
+# คัดลอกโค้ดทั้งหมด (รวม prisma schema และ tsconfig)
 COPY . .
-# COPY prisma ./prisma  <-- ลบบรรทัดนี้ออก (เพราะ COPY . . ครอบคลุมแล้ว)
-# COPY tsconfig*.json ./  <-- ลบบรรทัดนี้ออก (เพราะ COPY . . ครอบคลุมแล้ว)
 
-# สร้าง Prisma Client
+# สร้าง Prisma Client (ต้องทำหลัง copy prisma schema แล้ว)
 RUN npx prisma generate
 
-# รัน build เพื่อ transpile TypeScript เป็น JavaScript
+# สร้างไฟล์ JavaScript จาก TypeScript
 RUN npm run build
 
 EXPOSE 5000
 
+# รัน container ด้วย user ที่ปลอดภัย
 USER node
 
 CMD ["npm", "start"]

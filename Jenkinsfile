@@ -23,6 +23,8 @@ pipeline {
                 dir('backend') {
                     sh """
                         echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_USER --password-stdin
+                        npm install
+                        npx prisma generate
                         docker build -t $DOCKERHUB_USER/backend:$IMAGE_TAG .
                         docker push $DOCKERHUB_USER/backend:$IMAGE_TAG
                     """
