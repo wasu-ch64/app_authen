@@ -46,8 +46,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: MANIFEST_CREDENTIALS, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
                     sh """
-                    sed -i'' -e 's|image: ${DOCKERHUB_USER}/backend:.*|image: ${DOCKERHUB_USER}/backend:${IMAGE_TAG}|' k8s/backend.yaml
-                    sed -i'' -e 's|image: ${DOCKERHUB_USER}/frontend:.*|image: ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}|' k8s/frontend.yaml
+                    sed -i'' -e 's|image: ${DOCKERHUB_USER}/backend:.*|image: ${DOCKERHUB_USER}/backend:${IMAGE_TAG}|' k8s/backend/deployment.yaml
+                    sed -i'' -e 's|image: ${DOCKERHUB_USER}/frontend:.*|image: ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}|' k8s/frontend/deployment.yaml
 
                     git config user.email "jenkins@ci"
                     git config user.name "Jenkins CI"
@@ -55,7 +55,7 @@ pipeline {
                     # ตั้ง remote url ใหม่ใส่ username กับ token สำหรับ push ผ่าน HTTPS
                     git remote set-url origin https://${GIT_USER}:${GIT_PASS}@github.com/wasu-ch64/app_authen.git
 
-                    git add k8s/backend.yaml k8s/frontend.yaml
+                    git add k8s/backend/deployment.yaml k8s/frontend/deployment.yaml
                     git commit -m "chore: update images to tag ${IMAGE_TAG}" || echo "No changes to commit"
                     git push origin main
                     """

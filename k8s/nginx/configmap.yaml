@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: myapp
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        upstream client {
+            server frontend.myapp.svc.cluster.local:80;
+        }
+
+        upstream server {
+            server backend.myapp.svc.cluster.local:80;
+        }
+
+        server {
+            listen 80;
+            server_name localhost;
+
+            location / {
+                proxy_pass http://client;
+            }
+
+            location /api {
+                proxy_pass http://server;
+            }
+        }
+    }
