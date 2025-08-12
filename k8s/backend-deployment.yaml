@@ -20,7 +20,7 @@ spec:
         image: wasu1304/backend:1
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 5000
+        - containerPort: 3000
         env:
         - name: DATABASE_URL
           value: postgresql://postgres:demo-app1234@postgres.myapp.svc.cluster.local:5432/demo-app
