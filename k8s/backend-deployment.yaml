@@ -24,6 +24,8 @@ spec:
         env:
         - name: DATABASE_URL
           value: postgresql://postgres:demo-app1234@postgres.myapp.svc.cluster.local:5432/demo-app
+        - name: NODE_ENV
+          value: production
         resources:
           limits:
             cpu: "500m"
