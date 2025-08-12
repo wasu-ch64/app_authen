@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: wasu1304/backend:1
+        image: wasu1304/backend:3
         ports:
         - containerPort: 5000
         env:
