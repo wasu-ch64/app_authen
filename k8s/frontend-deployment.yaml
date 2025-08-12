@@ -19,7 +19,7 @@ spec:
       - name: frontend
         image: wasu1304/frontend:1
         ports:
-        - containerPort: 5173
+        - containerPort: 80
         resources:
           limits:
             cpu: "500m"
@@ -30,12 +30,12 @@ spec:
         readinessProbe:
           httpGet:
             path: /
-            port: 5173
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /
-            port: 5173
+            port: 80
           initialDelaySeconds: 15
           periodSeconds: 20
