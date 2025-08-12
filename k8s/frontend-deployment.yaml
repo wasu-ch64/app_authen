@@ -17,9 +17,14 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: wasu1304/frontend:4
+        image: wasu1304/frontend:3
         ports:
         - containerPort: 80
+        env:
+        - name: VITE_API_URL
+          value: http://backend.myapp.svc.cluster.local:3000
+        - name: VITE_HOST
+          value: localhost
         resources:
           limits:
             cpu: "500m"
