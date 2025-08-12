@@ -31,15 +31,15 @@ spec:
           requests:
             cpu: "250m"
             memory: "256Mi"
-        readinessProbe:
-          httpGet:
-            path: /healthz  # เปลี่ยนเป็น endpoint ตรวจสอบสุขภาพของ backend
-            port: 5000
-          initialDelaySeconds: 10
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /healthz  # เปลี่ยนเป็น endpoint ตรวจสอบสุขภาพของ backend
-            port: 5000
-          initialDelaySeconds: 30
-          periodSeconds: 30
+        # readinessProbe:
+        #   httpGet:
+        #     path: /healthz  # เปลี่ยนเป็น endpoint ตรวจสอบสุขภาพของ backend
+        #     port: 5000
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 10
+        # livenessProbe:
+        #   httpGet:
+        #     path: /healthz  # เปลี่ยนเป็น endpoint ตรวจสอบสุขภาพของ backend
+        #     port: 5000
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 30
