@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: wasu1304/backend:1
+        image: wasu1304/backend:2
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
