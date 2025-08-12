@@ -11,5 +11,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80          # พอร์ตที่ expose ใน cluster
-      targetPort: 5173  # พอร์ตที่ container ฟัง
+      targetPort: 80  # พอร์ตที่ container ฟัง
   type: ClusterIP
