@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: wasu1304/frontend:3
+        image: wasu1304/frontend:4
         ports:
         - containerPort: 80
         resources:
