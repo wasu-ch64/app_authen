@@ -31,9 +31,18 @@ pipeline {
         }
 
         stage('Build & Push Frontend Image') {
+            environment {
+                VITE_API_URL = 'http://backend.myapp.svc.cluster.local:3000'
+                VITE_HOST = 'localhost'
+                VITE_PORT = '5173'
+            }
             steps {
                 dir('frontend') {
                     sh """
+                     echo "VITE_API_URL=${VITE_API_URL}" > .env
+                    echo "VITE_HOST=${VITE_HOST}" >> .env
+                    echo "VITE_PORT=${VITE_PORT}" >> .env
+
                     echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_USER --password-stdin
                     docker build -t $DOCKERHUB_USER/frontend:$IMAGE_TAG .
                     docker push $DOCKERHUB_USER/frontend:$IMAGE_TAG
