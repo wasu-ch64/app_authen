@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE = "wasu1304/backend:latest"
-        FRONTEND_IMAGE = "wasu1304/frontend:latest"
+        DOCKER_USER = "wasu1304" // username บน Docker Hub
+        BACKEND_IMAGE = "${DOCKER_USER}/backend:latest"
+        FRONTEND_IMAGE = "${DOCKER_USER}/frontend:latest"
         NAMESPACE = "app-authen"
         GIT_REPO = "https://github.com/wasu-ch64/app_authen.git"
         ARGO_REPO_PATH = "k8s"
@@ -30,7 +31,6 @@ pipeline {
             }
         }
 
-
         stage('Build Backend Docker') {
             steps {
                 sh "docker build -t ${BACKEND_IMAGE} ./backend"
@@ -47,10 +47,9 @@ pipeline {
 
         stage('Update Manifests for Argo CD') {
             steps {
-                // ใช้ sed หรือ yq เปลี่ยน image ใน manifests
                 sh """
-                sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE}|' k8s/backend.yaml
-                sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE}|' k8s/frontend.yaml
+                sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE}|' k8s/argocd/backend.yaml
+                sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE}|' k8s/argocd/frontend.yaml
                 """
             }
         }
@@ -58,9 +57,9 @@ pipeline {
         stage('Push to Git for Argo CD') {
             steps {
                 sh """
-                git config user.email "wasuchailangka0@.com"
-                git config user.name "wasu"
-                git add k8s
+                git config user.email "jenkins@example.com"
+                git config user.name "jenkins"
+                git add k8s/argocd/
                 git commit -m "Update images for Argo CD"
                 git push origin main
                 """
@@ -69,7 +68,6 @@ pipeline {
 
         stage('Trigger Argo CD Sync') {
             steps {
-                // Argo CD CLI ต้องติดตั้งใน Jenkins Pod
                 sh "argocd app sync ${ARGO_APP_NAME} --server argocd-server.${ARGO_NAMESPACE}.svc.cluster.local --auth-token \$ARGO_AUTH_TOKEN"
             }
         }
