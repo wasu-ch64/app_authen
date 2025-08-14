@@ -18,9 +18,7 @@ pipeline {
                     credentialsId: 'github-token'
                 script {
                     COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    env.BACKEND_IMAGE_LATEST = "${DOCKER_USER}/backend:latest"
                     env.BACKEND_IMAGE_COMMIT = "${DOCKER_USER}/backend:${COMMIT_HASH}"
-                    env.FRONTEND_IMAGE_LATEST = "${DOCKER_USER}/frontend:latest"
                     env.FRONTEND_IMAGE_COMMIT = "${DOCKER_USER}/frontend:${COMMIT_HASH}"
                 }
             }
@@ -31,10 +29,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials',
                                                  usernameVariable: 'DOCKER_USERNAME',
                                                  passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh '''
-                    set -e
-                    docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                    '''
+                    sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
                 }
             }
         }
@@ -42,9 +37,7 @@ pipeline {
         stage('Build Backend Docker') {
             steps {
                 sh '''
-                set -e
-                docker build -t ${BACKEND_IMAGE_LATEST} -t ${BACKEND_IMAGE_COMMIT} ./backend
-                docker push ${BACKEND_IMAGE_LATEST}
+                docker build -t ${BACKEND_IMAGE_COMMIT} ./backend
                 docker push ${BACKEND_IMAGE_COMMIT}
                 '''
             }
@@ -53,9 +46,7 @@ pipeline {
         stage('Build Frontend Docker') {
             steps {
                 sh '''
-                set -e
-                docker build -t ${FRONTEND_IMAGE_LATEST} -t ${FRONTEND_IMAGE_COMMIT} ./frontend
-                docker push ${FRONTEND_IMAGE_LATEST}
+                docker build -t ${FRONTEND_IMAGE_COMMIT} ./frontend
                 docker push ${FRONTEND_IMAGE_COMMIT}
                 '''
             }
@@ -64,7 +55,6 @@ pipeline {
         stage('Update Manifests for Argo CD') {
             steps {
                 sh '''
-                set -e
                 sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE_COMMIT}|' k8s/backend.yaml
                 sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE_COMMIT}|' k8s/frontend.yaml
                 '''
@@ -74,7 +64,6 @@ pipeline {
         stage('Push to Git for Argo CD') {
             steps {
                 sh '''
-                set -e
                 git config user.email "jenkins@example.com"
                 git config user.name "jenkins"
                 git add k8s
@@ -91,7 +80,6 @@ pipeline {
         stage('Trigger Argo CD Sync') {
             steps {
                 sh '''
-                set -e
                 argocd app sync ${ARGO_APP_NAME} \
                     --server argocd-server.${ARGO_NAMESPACE}.svc.cluster.local \
                     --auth-token $ARGO_AUTH_TOKEN
@@ -102,7 +90,6 @@ pipeline {
         stage('Verify') {
             steps {
                 sh '''
-                set -e
                 kubectl get pods -n ${NAMESPACE}
                 kubectl get svc -n ${NAMESPACE}
                 kubectl get ingress -n ${NAMESPACE}
