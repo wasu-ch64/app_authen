@@ -69,17 +69,20 @@ pipeline {
 
         stage('Push to Git for Argo CD') {
             steps {
-                sh '''
-                git config user.email "jenkins@example.com"
-                git config user.name "jenkins"
-                git add k8s
-                if ! git diff --cached --quiet; then
-                    git commit -m "Update images to ${COMMIT_HASH} for Argo CD"
-                    git push origin main
-                else
-                    echo "No changes to commit"
-                fi
-                '''
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                    git config user.email "jenkins@example.com"
+                    git config user.name "jenkins"
+                    git add k8s
+                    if ! git diff --cached --quiet; then
+                        git commit -m "Update images to ${COMMIT_HASH} for Argo CD"
+                        # ใช้ token สำหรับ push
+                        git push https://$GITHUB_TOKEN@github.com/wasu-ch64/app_authen.git main
+                    else
+                        echo "No changes to commit"
+                    fi
+                    '''
+                }
             }
         }
 
