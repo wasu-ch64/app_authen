@@ -67,11 +67,17 @@ pipeline {
                 git config user.email "jenkins@example.com"
                 git config user.name "jenkins"
                 git add k8s
-                git commit -m "Update images to ${COMMIT_HASH} for Argo CD"
-                git push origin main
+                # commit ถ้ามีการเปลี่ยนแปลงเท่านั้น
+                if ! git diff --cached --quiet; then
+                    git commit -m "Update images to ${COMMIT_HASH} for Argo CD"
+                    git push origin main
+                else
+                    echo "No changes to commit"
+                fi
                 """
             }
         }
+
 
         stage('Trigger Argo CD Sync') {
             steps {
