@@ -9,7 +9,10 @@ podTemplate(
             image: 'docker:24.0.5-dind',
             command: 'cat',
             ttyEnabled: true,
-            privileged: true
+            privileged: true,
+            envVars: [
+                envVar(key: 'DOCKER_HOST', value: 'tcp://localhost:2375') // ชี้ไปที่ dind
+            ]
         )
     ],
     label: 'jenkins-jenkins-agent'
@@ -24,20 +27,28 @@ podTemplate(
 
         stage('Build Backend Docker') {
             container('docker') {
-                sh "docker build -t ${REGISTRY}/${BACKEND_IMAGE} ./backend"
+                sh """
+                    docker info
+                    docker build -t ${REGISTRY}/${BACKEND_IMAGE} ./backend
+                """
             }
         }
 
         stage('Build Frontend Docker') {
             container('docker') {
-                sh "docker build -t ${REGISTRY}/${FRONTEND_IMAGE} ./frontend"
+                sh """
+                    docker info
+                    docker build -t ${REGISTRY}/${FRONTEND_IMAGE} ./frontend
+                """
             }
         }
 
         stage('Push Images') {
             container('docker') {
-                sh "docker push ${REGISTRY}/${BACKEND_IMAGE}"
-                sh "docker push ${REGISTRY}/${FRONTEND_IMAGE}"
+                sh """
+                    docker push ${REGISTRY}/${BACKEND_IMAGE}
+                    docker push ${REGISTRY}/${FRONTEND_IMAGE}
+                """
             }
         }
 
@@ -46,6 +57,7 @@ podTemplate(
         }
     }
 }
+
 
 
 
