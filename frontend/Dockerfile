@@ -18,11 +18,8 @@ RUN npm run build
 # ใช้ nginx serve static files
 FROM nginx:alpine
 
-# copy build output to nginx
-COPY --from=build /app/build /usr/share/nginx/html
-
-# copy custom nginx config ถ้ามี
-# COPY nginx.conf /etc/nginx/nginx.conf
+# copy build output (Vite => dist) to nginx
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # expose port 80
 EXPOSE 80
