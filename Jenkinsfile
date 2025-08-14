@@ -76,7 +76,6 @@ pipeline {
                     git add k8s
                     if ! git diff --cached --quiet; then
                         git commit -m "Update images to ${COMMIT_HASH} for Argo CD"
-                        # ใช้ token สำหรับ push
                         git push https://$GITHUB_TOKEN@github.com/wasu-ch64/app_authen.git main
                     else
                         echo "No changes to commit"
