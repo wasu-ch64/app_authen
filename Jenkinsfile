@@ -6,7 +6,7 @@ pipeline {
         FRONTEND_IMAGE = "frontend/frontend:latest"
         NAMESPACE = "app-authen"
         GIT_REPO = "https://github.com/wasu-ch64/app_authen.git"
-        ARGO_REPO_PATH = "k8s" // path ที่ Argo CD จะ sync
+        ARGO_REPO_PATH = "k8s"
         ARGO_APP_NAME = "app-authen"
         ARGO_NAMESPACE = "argocd"
     }
@@ -19,6 +19,17 @@ pipeline {
                     credentialsId: 'github-token'
             }
         }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
+                                                 usernameVariable: 'DOCKER_USER', 
+                                                 passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'docker login -u $DOCKER_USER -p $DOCKER_PASS'
+                }
+            }
+        }
+
 
         stage('Build Backend Docker') {
             steps {
@@ -38,8 +49,8 @@ pipeline {
             steps {
                 // ใช้ sed หรือ yq เปลี่ยน image ใน manifests
                 sh """
-                sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE}|' k8s/argocd/backend.yaml
-                sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE}|' k8s/argocd/frontend.yaml
+                sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE}|' k8s/backend.yaml
+                sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE}|' k8s/frontend.yaml
                 """
             }
         }
@@ -47,9 +58,9 @@ pipeline {
         stage('Push to Git for Argo CD') {
             steps {
                 sh """
-                git config user.email "jenkins@example.com"
-                git config user.name "jenkins"
-                git add k8s/argocd/
+                git config user.email "wasuchailangka0@.com"
+                git config user.name "wasu"
+                git add k8s
                 git commit -m "Update images for Argo CD"
                 git push origin main
                 """
