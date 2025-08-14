@@ -1,53 +1,48 @@
-pipeline {
-    agent {
-        kubernetes {
-            label 'jenkins-jenkins-agent'
-            defaultContainer 'docker'
-        }
-    }
+podTemplate(
+    containers: [
+        containerTemplate(
+            name: 'docker',
+            image: 'docker:24.0.5-dind',
+            command: 'cat',
+            ttyEnabled: true,
+            privileged: true
+        )
+    ],
+    label: 'jenkins-jenkins-agent'
+) {
+    node('jenkins-jenkins-agent') {
 
-    environment {
-        BACKEND_IMAGE = "backend/backend:latest"
-        FRONTEND_IMAGE = "frontend/frontend:latest"
-        REGISTRY = "docker.io/wasu1304" // เช่น docker.io/username
-    }
-
-    stages {
         stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/wasu-ch64/app_authen.git',
-                    credentialsId: 'github-token'
-            }
+            git branch: 'main',
+                url: 'https://github.com/wasu-ch64/app_authen.git',
+                credentialsId: 'github-token'
         }
 
         stage('Build Backend Docker') {
-            steps {
+            container('docker') {
                 sh "docker build -t ${REGISTRY}/${BACKEND_IMAGE} ./backend"
             }
         }
 
         stage('Build Frontend Docker') {
-            steps {
+            container('docker') {
                 sh "docker build -t ${REGISTRY}/${FRONTEND_IMAGE} ./frontend"
             }
         }
 
         stage('Push Images') {
-            steps {
+            container('docker') {
                 sh "docker push ${REGISTRY}/${BACKEND_IMAGE}"
                 sh "docker push ${REGISTRY}/${FRONTEND_IMAGE}"
             }
         }
 
         stage('Trigger Argo CD Sync') {
-            steps {
-                // ใช้ Argo CD CLI หรือ webhook เพื่อ sync อัตโนมัติ
-                sh "argocd app sync app-authen"
-            }
+            sh "argocd app sync app-authen"
         }
     }
 }
+
 
 
 // pipeline {
