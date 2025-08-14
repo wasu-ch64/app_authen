@@ -2,83 +2,69 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')  // Docker Hub username/password
-        DOCKERHUB_USER = 'wasu1304'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        MANIFEST_REPO = 'https://github.com/wasu-ch64/app_authen.git'
-        MANIFEST_CREDENTIALS = 'github-token' // Jenkins Credential (Username + PAT)
+        BACKEND_IMAGE = "backend/backend:latest"
+        FRONTEND_IMAGE = "frontend/frontend:latest"
+        NAMESPACE = "app-authen"
     }
 
     stages {
-        stage('Checkout Source') {
+        stage('Checkout') {
             steps {
                 git branch: 'main',
-                    credentialsId: MANIFEST_CREDENTIALS,
-                    url: MANIFEST_REPO
+                    url: 'https://github.com/wasu-ch64/app_authen.git',
+                    credentialsId: 'github-token'
             }
         }
 
-        stage('Build & Push Backend Image') {
+        stage('Setup Minikube Docker') {
             steps {
-                dir('backend') {
-                    sh """
-                        echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_USER --password-stdin
-                        docker build -t $DOCKERHUB_USER/backend:$IMAGE_TAG .
-                        docker push $DOCKERHUB_USER/backend:$IMAGE_TAG
-                    """
+                script {
+                    // ใช้ Docker daemon ของ Minikube เพื่อไม่ต้อง push ภาพ
+                    sh "eval \$(minikube -p minikube docker-env)"
                 }
             }
         }
 
-        stage('Build & Push Frontend Image') {
-            environment {
-                VITE_API_URL = 'http://backend.myapp.svc.cluster.local:3000'
-                VITE_HOST = 'localhost'
-                VITE_PORT = '5173'
-            }
+        stage('Build Backend Docker') {
             steps {
-                dir('frontend') {
-                    sh """
-                     echo "VITE_API_URL=${VITE_API_URL}" > .env
-                    echo "VITE_HOST=${VITE_HOST}" >> .env
-                    echo "VITE_PORT=${VITE_PORT}" >> .env
-
-                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_USER --password-stdin
-                    docker build -t $DOCKERHUB_USER/frontend:$IMAGE_TAG .
-                    docker push $DOCKERHUB_USER/frontend:$IMAGE_TAG
-                    """
+                script {
+                    sh "docker build -t ${BACKEND_IMAGE} ./backend"
                 }
             }
         }
 
-        stage('Update Manifests for ArgoCD') {
+        stage('Build Frontend Docker') {
             steps {
-                withCredentials([usernamePassword(credentialsId: MANIFEST_CREDENTIALS, usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                    sh """
-                    sed -i'' -e 's|image: ${DOCKERHUB_USER}/backend:.*|image: ${DOCKERHUB_USER}/backend:${IMAGE_TAG}|' k8s/backend-deployment.yaml
-                    sed -i'' -e 's|image: ${DOCKERHUB_USER}/frontend:.*|image: ${DOCKERHUB_USER}/frontend:${IMAGE_TAG}|' k8s/frontend-deployment.yaml
-
-                    git config user.email "jenkins@ci"
-                    git config user.name "Jenkins CI"
-
-                    # ตั้ง remote url ใหม่ใส่ username กับ token สำหรับ push ผ่าน HTTPS
-                    git remote set-url origin https://${GIT_USER}:${GIT_PASS}@github.com/wasu-ch64/app_authen.git
-
-                    git add k8s/backend-deployment.yaml k8s/frontend-deployment.yaml
-                    git commit -m "chore: update images to tag ${IMAGE_TAG}" || echo "No changes to commit"
-                    git push origin main
-                    """
+                script {
+                    sh "docker build -t ${FRONTEND_IMAGE} ./frontend"
                 }
             }
         }
-    }
 
-    post {
-        success {
-            echo '✅ Build completed and manifests updated for ArgoCD sync!'
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // สร้าง namespace ถ้ายังไม่มี
+                    sh "kubectl create namespace ${NAMESPACE} || echo 'namespace exists'"
+
+                    // apply Secret และ resource อื่น ๆ
+                    sh "kubectl apply -f k8s/postgres-secret.yaml -n ${NAMESPACE}"
+                    sh "kubectl apply -f k8s/postgres.yaml -n ${NAMESPACE}"
+                    sh "kubectl apply -f k8s/backend.yaml -n ${NAMESPACE}"
+                    sh "kubectl apply -f k8s/frontend.yaml -n ${NAMESPACE}"
+                    sh "kubectl apply -f k8s/ingress.yaml -n ${NAMESPACE}"
+                }
+            }
         }
-        failure {
-            echo '❌ Pipeline failed!'
+
+        stage('Verify') {
+            steps {
+                script {
+                    sh "kubectl get pods -n ${NAMESPACE}"
+                    sh "kubectl get svc -n ${NAMESPACE}"
+                    sh "kubectl get ingress -n ${NAMESPACE}"
+                }
+            }
         }
     }
 }

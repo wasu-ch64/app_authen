@@ -1,26 +1,31 @@
-# Build stage
-FROM node:22-alpine AS build
+# ใช้ node image สำหรับ build
+FROM node:22-alpine as build
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
+# copy package.json & package-lock.json
+COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# install dependencies
+RUN npm install
 
-# Copy everything
+# copy source code
 COPY . .
 
-# Build the app
+# build project
 RUN npm run build
 
-# Production stage
-FROM nginx:stable-alpine
+# ใช้ nginx serve static files
+FROM nginx:alpine
 
-# Copy built files to nginx
-COPY --from=build /app/dist /usr/share/nginx/html
+# copy build output to nginx
+COPY --from=build /app/build /usr/share/nginx/html
 
+# copy custom nginx config ถ้ามี
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+# expose port 80
 EXPOSE 80
 
+# start nginx
 CMD ["nginx", "-g", "daemon off;"]

@@ -18,9 +18,9 @@ RUN npm run build
 
 RUN cp -r src/generated dist/generated
 
-EXPOSE 5000
+EXPOSE 3000
 
 # รัน container ด้วย user ที่ปลอดภัย
 USER node
 
-CMD ["npm", "start"]
+CMD ["node", "start"]
