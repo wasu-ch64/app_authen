@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE = "backend/backend:latest"
-        FRONTEND_IMAGE = "frontend/frontend:latest"
+        BACKEND_IMAGE = "wasu1304/backend:latest"
+        FRONTEND_IMAGE = "wasu1304/frontend:latest"
         NAMESPACE = "app-authen"
         GIT_REPO = "https://github.com/wasu-ch64/app_authen.git"
         ARGO_REPO_PATH = "k8s"
