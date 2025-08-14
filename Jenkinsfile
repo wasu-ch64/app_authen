@@ -18,6 +18,9 @@ pipeline {
                     credentialsId: 'github-token'
                 script {
                     COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    if (!COMMIT_HASH) {
+                        error "COMMIT_HASH is empty!"
+                    }
                     env.BACKEND_IMAGE_COMMIT = "${DOCKER_USER}/backend:${COMMIT_HASH}"
                     env.BACKEND_IMAGE_LATEST = "${DOCKER_USER}/backend:latest"
                     env.FRONTEND_IMAGE_COMMIT = "${DOCKER_USER}/frontend:${COMMIT_HASH}"
@@ -59,9 +62,7 @@ pipeline {
         stage('Update Manifests for Argo CD') {
             steps {
                 sh '''
-                # Update backend image
                 sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE_COMMIT}|' k8s/backend.yaml
-                # Update frontend image
                 sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE_COMMIT}|' k8s/frontend.yaml
                 '''
             }
