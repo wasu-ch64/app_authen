@@ -1,119 +1,74 @@
-def REGISTRY = "docker.io/wasu1304"
-def BACKEND_IMAGE = "backend/backend:latest"
-def FRONTEND_IMAGE = "frontend/frontend:latest"
+pipeline {
+    agent any
 
-podTemplate(
-    containers: [
-        containerTemplate(
-            name: 'docker',
-            image: 'docker:24.0.5-dind',
-            command: 'cat',
-            ttyEnabled: true,
-            privileged: true,
-            envVars: [
-                envVar(key: 'DOCKER_HOST', value: 'tcp://localhost:2375') // ชี้ไปที่ dind
-            ]
-        )
-    ],
-    label: 'jenkins-jenkins-agent'
-) {
-    node('jenkins-jenkins-agent') {
+    environment {
+        BACKEND_IMAGE = "backend/backend:latest"
+        FRONTEND_IMAGE = "frontend/frontend:latest"
+        NAMESPACE = "app-authen"
+        GIT_REPO = "https://github.com/wasu-ch64/app_authen.git"
+        ARGO_REPO_PATH = "k8s" // path ที่ Argo CD จะ sync
+        ARGO_APP_NAME = "app-authen"
+        ARGO_NAMESPACE = "argocd"
+    }
 
+    stages {
         stage('Checkout') {
-            git branch: 'main',
-                url: 'https://github.com/wasu-ch64/app_authen.git',
-                credentialsId: 'github-token'
+            steps {
+                git branch: 'main',
+                    url: "${GIT_REPO}",
+                    credentialsId: 'github-token'
+            }
         }
 
         stage('Build Backend Docker') {
-            container('docker') {
-                sh """
-                    docker info
-                    docker build -t ${REGISTRY}/${BACKEND_IMAGE} ./backend
-                """
+            steps {
+                sh "docker build -t ${BACKEND_IMAGE} ./backend"
+                sh "docker push ${BACKEND_IMAGE}"
             }
         }
 
         stage('Build Frontend Docker') {
-            container('docker') {
+            steps {
+                sh "docker build -t ${FRONTEND_IMAGE} ./frontend"
+                sh "docker push ${FRONTEND_IMAGE}"
+            }
+        }
+
+        stage('Update Manifests for Argo CD') {
+            steps {
+                // ใช้ sed หรือ yq เปลี่ยน image ใน manifests
                 sh """
-                    docker info
-                    docker build -t ${REGISTRY}/${FRONTEND_IMAGE} ./frontend
+                sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE}|' k8s/argocd/backend.yaml
+                sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE}|' k8s/argocd/frontend.yaml
                 """
             }
         }
 
-        stage('Push Images') {
-            container('docker') {
+        stage('Push to Git for Argo CD') {
+            steps {
                 sh """
-                    docker push ${REGISTRY}/${BACKEND_IMAGE}
-                    docker push ${REGISTRY}/${FRONTEND_IMAGE}
+                git config user.email "jenkins@example.com"
+                git config user.name "jenkins"
+                git add k8s/argocd/
+                git commit -m "Update images for Argo CD"
+                git push origin main
                 """
             }
         }
 
         stage('Trigger Argo CD Sync') {
-            sh "argocd app sync app-authen"
+            steps {
+                // Argo CD CLI ต้องติดตั้งใน Jenkins Pod
+                sh "argocd app sync ${ARGO_APP_NAME} --server argocd-server.${ARGO_NAMESPACE}.svc.cluster.local --auth-token \$ARGO_AUTH_TOKEN"
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh "kubectl get pods -n ${NAMESPACE}"
+                sh "kubectl get svc -n ${NAMESPACE}"
+                sh "kubectl get ingress -n ${NAMESPACE}"
+            }
         }
     }
 }
-
-
-
-
-
-// pipeline {
-//     agent {
-//         kubernetes {
-//             label 'jenkins-jenkins-agent'
-//             defaultContainer 'docker'
-//         }
-//     }
-
-//     environment {
-//         BACKEND_IMAGE = "backend/backend:latest"
-//         FRONTEND_IMAGE = "frontend/frontend:latest"
-//         NAMESPACE = "app-authen"
-//     }
-
-//     stages {
-//         stage('Checkout') {
-//             steps {
-//                 git branch: 'main',
-//                     url: 'https://github.com/wasu-ch64/app_authen.git',
-//                     credentialsId: 'github-token'
-//             }
-//         }
-
-//         stage('Build Backend Docker') {
-//             steps {
-//                 sh "docker build -t ${BACKEND_IMAGE} ./backend"
-//             }
-//         }
-
-//         stage('Build Frontend Docker') {
-//             steps {
-//                 sh "docker build -t ${FRONTEND_IMAGE} ./frontend"
-//             }
-//         }
-
-//         stage('Deploy to Kubernetes') {
-//             steps {
-//                 sh "kubectl create namespace ${NAMESPACE} || echo 'namespace exists'"
-//                 sh "kubectl apply -f k8s/postgres-secret.yaml -n ${NAMESPACE}"
-//                 sh "kubectl apply -f k8s/postgres.yaml -n ${NAMESPACE}"
-//                 sh "kubectl apply -f k8s/backend.yaml -n ${NAMESPACE}"
-//                 sh "kubectl apply -f k8s/frontend.yaml -n ${NAMESPACE}"
-//                 sh "kubectl apply -f k8s/ingress.yaml -n ${NAMESPACE}"
-//             }
-//         }
-
-//         stage('Verify') {
-//             steps {
-//                 sh "kubectl get pods -n ${NAMESPACE}"
-//                 sh "kubectl get svc -n ${NAMESPACE}"
-//                 sh "kubectl get ingress -n ${NAMESPACE}"
-//             }
-//         }
-//     }
-// }
