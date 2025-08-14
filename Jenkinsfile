@@ -55,8 +55,8 @@ pipeline {
         stage('Update Manifests for Argo CD') {
             steps {
                 sh """
-                sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE_COMMIT}|' k8s/argocd/backend.yaml
-                sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE_COMMIT}|' k8s/argocd/frontend.yaml
+                sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE_COMMIT}|' k8s/backend.yaml
+                sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE_COMMIT}|' k8s/frontend.yaml
                 """
             }
         }
@@ -66,7 +66,7 @@ pipeline {
                 sh """
                 git config user.email "jenkins@example.com"
                 git config user.name "jenkins"
-                git add k8s/argocd/
+                git add k8s
                 git commit -m "Update images to ${COMMIT_HASH} for Argo CD"
                 git push origin main
                 """
