@@ -1,3 +1,7 @@
+def REGISTRY = "docker.io/wasu1304"
+def BACKEND_IMAGE = "backend/backend:latest"
+def FRONTEND_IMAGE = "frontend/frontend:latest"
+
 podTemplate(
     containers: [
         containerTemplate(
@@ -42,6 +46,7 @@ podTemplate(
         }
     }
 }
+
 
 
 
