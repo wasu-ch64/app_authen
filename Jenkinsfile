@@ -78,7 +78,6 @@ pipeline {
             }
         }
 
-
         stage('Trigger Argo CD Sync') {
             steps {
                 sh "argocd app sync ${ARGO_APP_NAME} --server argocd-server.${ARGO_NAMESPACE}.svc.cluster.local --auth-token \$ARGO_AUTH_TOKEN"
