@@ -19,7 +19,9 @@ pipeline {
                 script {
                     COMMIT_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
                     env.BACKEND_IMAGE_COMMIT = "${DOCKER_USER}/backend:${COMMIT_HASH}"
+                    env.BACKEND_IMAGE_LATEST = "${DOCKER_USER}/backend:latest"
                     env.FRONTEND_IMAGE_COMMIT = "${DOCKER_USER}/frontend:${COMMIT_HASH}"
+                    env.FRONTEND_IMAGE_LATEST = "${DOCKER_USER}/frontend:latest"
                 }
             }
         }
@@ -34,19 +36,21 @@ pipeline {
             }
         }
 
-        stage('Build Backend Docker') {
+        stage('Build & Push Backend Docker') {
             steps {
                 sh '''
-                docker build -t ${BACKEND_IMAGE_COMMIT} ./backend
+                docker build -t ${BACKEND_IMAGE_LATEST} -t ${BACKEND_IMAGE_COMMIT} ./backend
+                docker push ${BACKEND_IMAGE_LATEST}
                 docker push ${BACKEND_IMAGE_COMMIT}
                 '''
             }
         }
 
-        stage('Build Frontend Docker') {
+        stage('Build & Push Frontend Docker') {
             steps {
                 sh '''
-                docker build -t ${FRONTEND_IMAGE_COMMIT} ./frontend
+                docker build -t ${FRONTEND_IMAGE_LATEST} -t ${FRONTEND_IMAGE_COMMIT} ./frontend
+                docker push ${FRONTEND_IMAGE_LATEST}
                 docker push ${FRONTEND_IMAGE_COMMIT}
                 '''
             }
@@ -55,7 +59,9 @@ pipeline {
         stage('Update Manifests for Argo CD') {
             steps {
                 sh '''
+                # Update backend image
                 sed -i 's|image: .*backend.*|image: ${BACKEND_IMAGE_COMMIT}|' k8s/backend.yaml
+                # Update frontend image
                 sed -i 's|image: .*frontend.*|image: ${FRONTEND_IMAGE_COMMIT}|' k8s/frontend.yaml
                 '''
             }
