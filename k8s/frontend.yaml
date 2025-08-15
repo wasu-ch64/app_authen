@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: docker.io/wasu1304/frontend:83edfe8
+          image: docker.io/wasu1304/frontend:fa850fe
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
