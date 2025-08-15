@@ -14,17 +14,6 @@ pipeline {
     }
 
     stages {
-        stage('Install yq') {
-            steps {
-                sh '''
-                if ! command -v yq &> /dev/null; then
-                    sudo snap install yq || (wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq)
-                fi
-                yq --version
-                '''
-            }
-        }
-        
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -80,9 +69,8 @@ pipeline {
         stage('Update Manifests for Argo CD') {
             steps {
                 sh '''
-                # ใช้ yq แทน sed เพื่อความน่าเชื่อถือ
-                yq e -i ".spec.template.spec.containers[0].image = \\"${BACKEND_IMAGE_COMMIT}\\"" ${ARGO_REPO_PATH}/backend.yaml
-                yq e -i ".spec.template.spec.containers[0].image = \\"${FRONTEND_IMAGE_COMMIT}\\"" ${ARGO_REPO_PATH}/frontend.yaml
+                sed -i "s|image: .*backend.*|image: ${BACKEND_IMAGE_COMMIT}|" ${ARGO_REPO_PATH}/backend.yaml
+                sed -i "s|image: .*frontend.*|image: ${FRONTEND_IMAGE_COMMIT}|" ${ARGO_REPO_PATH}/frontend.yaml
                 # ตรวจสอบว่า manifest อัพเดทถูกต้อง
                 cat ${ARGO_REPO_PATH}/backend.yaml
                 cat ${ARGO_REPO_PATH}/frontend.yaml
