@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: backend:latest
+          image: ${BACKEND_IMAGE_COMMIT}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
