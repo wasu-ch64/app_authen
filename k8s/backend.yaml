@@ -28,8 +28,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: docker.io/wasu1304/backend:5ab3ff7
-          # image: docker.io/wasu1304/backend:<commit-hash>
+          image: docker.io/wasu1304/backend:f7dc3c9
+          # image: docker.io/wasu1304/backend:f7dc3c9
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
