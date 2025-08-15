@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ${BACKEND_IMAGE_COMMIT}
+          image: wasu1304/backend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
