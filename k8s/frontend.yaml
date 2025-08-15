@@ -33,3 +33,6 @@ spec:
     - port: 80
       targetPort: 80
       nodePort: 30080
+  env:
+    - name: BACKEND_URL
+      value: "http://backend:3000"
