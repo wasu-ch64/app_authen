@@ -21,7 +21,7 @@ spec:
           ports:
             - containerPort: 80
           env:
-            - name: BACKEND_URL
+            - name: VITE_API_URL
               value: "http://backend:3000"
 ---
 apiVersion: v1
