@@ -6,6 +6,7 @@ pipeline {
         NAMESPACE = "app-authen"
         GIT_REPO = "https://github.com/wasu-ch64/app_authen.git"
         ARGO_REPO_PATH = "k8s"
+        ARGO_AUTH_TOKEN = credentials('ARGO_AUTH_TOKEN')
         ARGO_APP_NAME = "app-authen"
         ARGO_NAMESPACE = "argocd"
     }
@@ -89,9 +90,8 @@ pipeline {
         stage('Trigger Argo CD Sync') {
             steps {
                 sh '''
-                argocd app sync ${ARGO_APP_NAME} \
-                    --server argocd-server.${ARGO_NAMESPACE}.svc.cluster.local \
-                    --auth-token $ARGO_AUTH_TOKEN
+                argocd login localhost:8080 --grpc-web --auth-token $ARGO_AUTH_TOKEN --insecure
+                argocd app sync ${ARGO_APP_NAME} --grpc-web
                 '''
             }
         }
