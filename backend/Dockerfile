@@ -23,4 +23,4 @@ EXPOSE 3000
 # รัน container ด้วย user ที่ปลอดภัย
 USER node
 
-CMD ["node", "start"]
+CMD ["npm", "start"]
