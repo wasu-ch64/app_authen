@@ -63,8 +63,8 @@ pipeline {
         stage('Update Manifests for Argo CD') {
             steps {
                 sh '''
-                sed -i '' 's|image: .*backend.*|image: '"${BACKEND_IMAGE_COMMIT}"'|' k8s/backend.yaml && \
-                sed -i '' 's|image: .*frontend.*|image: '"${FRONTEND_IMAGE_COMMIT}"'|' k8s/frontend.yaml
+                sed -i "s|image: .*backend.*|image: ${BACKEND_IMAGE_COMMIT}|" k8s/backend.yaml &\
+                sed -i "s|image: .*frontend.*|image: ${FRONTEND_IMAGE_COMMIT}|" k8s/frontend.yaml
                 '''
             }
         }
