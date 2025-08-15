@@ -28,8 +28,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: docker.io/wasu1304/backend:f7dc3c9
-          # image: docker.io/wasu1304/backend:f7dc3c9
+          image: docker.io/wasu1304/backend:ad00aed
+          # image: docker.io/wasu1304/backend:ad00aed
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
