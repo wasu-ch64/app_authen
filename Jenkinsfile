@@ -14,6 +14,17 @@ pipeline {
     }
 
     stages {
+        stage('Install yq') {
+            steps {
+                sh '''
+                if ! command -v yq &> /dev/null; then
+                    sudo snap install yq || (wget https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq)
+                fi
+                yq --version
+                '''
+            }
+        }
+        
         stage('Checkout') {
             steps {
                 git branch: 'main',
