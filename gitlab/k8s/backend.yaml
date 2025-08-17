@@ -1,0 +1,71 @@
+# Secret ของ Postgres (ถ้ายังไม่ได้สร้าง)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: app-authen
+type: Opaque
+data:
+  POSTGRES_USER: cG9zdGdyZXM=      # postgres
+  POSTGRES_PASSWORD: c2VjcmV0      # secret
+  POSTGRES_DB: YXBwYXV0aGVu        # appauthen
+---
+# Deployment ของ backend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: app-authen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: registry.gitlab.com/backend/backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+            - name: DATABASE_URL
+              value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)
+            - name: NODE_ENV
+              value: production
+            - name: BCRYPT_SALT
+              value: "12"
+            - name: JWT_SECRET
+              value: "RvTVW9fXRov5uY1CCYmVR6cKK5FIeAVYqWpcBQVi2f8="
+---
+# Service ของ backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: app-authen
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 3000
+      targetPort: 3000

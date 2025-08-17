@@ -10,7 +10,8 @@ pipeline {
         ARGO_AUTH_TOKEN = credentials('ARGO_AUTH_TOKEN')
         ARGO_APP_NAME = "app-authen"
         ARGO_NAMESPACE = "argocd"
-        ARGO_SERVER = "argocd-server.${ARGO_NAMESPACE}.svc.cluster.local:443" // เปลี่ยนจาก localhost:8080
+        // ARGO_SERVER = "argocd-server.${ARGO_NAMESPACE}.svc.cluster.local:443" // เปลี่ยนจาก localhost:8080
+        ARGO_SERVER = "localhost:8080"
     }
 
     stages {

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: app-authen
+type: Opaque
+data:
+  POSTGRES_USER: cG9zdGdyZXM=   # base64 encode ของ postgres
+  POSTGRES_PASSWORD: c2VjcmV0   # base64 encode ของ password
+  POSTGRES_DB: YXBwYXV0aGVu    # base64 encode ของ db name
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: app-authen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: postgres-secret
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+      volumes:
+        - name: postgres-data
+          emptyDir: {}   # สำหรับ dev/test ใช้ emptyDir, production ใช้ PVC
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: app-authen
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
