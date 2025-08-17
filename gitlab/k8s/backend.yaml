@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: registry.gitlab.com/your-group/backend/backend:${CI_COMMIT_SHORT_SHA}
+          image: registry.gitlab.com/app-authen/backend/backend:${CI_COMMIT_SHORT_SHA}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
