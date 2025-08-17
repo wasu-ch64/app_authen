@@ -2,3 +2,5 @@
 .env
 
 reports
+
+/k8s/app-secret.yaml
