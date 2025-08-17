@@ -101,10 +101,10 @@ pipeline {
             steps {
                 sh '''
                 # ใช้ ARGO_SERVER แทน localhost
-                argocd login ${ARGO_SERVER} --grpc-web --auth-token $ARGO_AUTH_TOKEN
-                argocd app sync ${ARGO_APP_NAME} --grpc-web --timeout 300
+                argocd login $ARGO_SERVER --grpc-web --auth-token $ARGO_AUTH_TOKEN
+                argocd app sync $ARGO_APP_NAME --grpc-web --timeout 300
                 # รอให้ sync เสร็จ
-                argocd app wait ${ARGO_APP_NAME} --health --timeout 300 --grpc-web
+                argocd app wait $ARGO_APP_NAME --health --timeout 300 --grpc-web
                 '''
             }
         }
