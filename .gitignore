@@ -4,3 +4,4 @@
 reports
 
 /k8s/app-secret.yaml
+/k8s/postgres-secret.yaml
