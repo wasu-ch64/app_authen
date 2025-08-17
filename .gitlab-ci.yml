@@ -4,6 +4,10 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+services:
+  - docker:dind
 
 before_script:
   - echo "CI/CD running on GitLab"
